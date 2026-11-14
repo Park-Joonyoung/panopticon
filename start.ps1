@@ -73,7 +73,24 @@ function Install-Package {
     $env:Path = "$machinePath;$userPath;$env:Path"
 }
 
+function Test-ServerRunning {
+    $connection = New-Object System.Net.Sockets.TcpClient
+    try {
+        $connection.Connect('127.0.0.1', 3000)
+        return $true
+    } catch { return $false }
+    finally { $connection.Dispose() }
+}
+
 function Start-Panopticon {
+    if (Test-ServerRunning) {
+        Write-Host '이미 서버가 작동 중입니다.' -ForegroundColor Yellow
+        Write-Host '브라우저에서 http://127.0.0.1:3000 을 열어 주세요.' -ForegroundColor Green
+        Write-Host '아무 키나 누르면 이 창을 닫습니다.'
+        [void][Console]::ReadKey($true)
+        return
+    }
+
     $venvPython = Join-Path $PSScriptRoot '.venv\Scripts\python.exe'
     $requirements = Join-Path $PSScriptRoot 'requirements.txt'
     $stamp = Join-Path $PSScriptRoot '.venv\.panopticon-setup'
