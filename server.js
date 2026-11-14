@@ -55,6 +55,14 @@ const server = http.createServer((req, res) => {
   } else if (req.method === "GET" && ["/dashboard.js", "/theme.js"].includes(url.pathname)) {
     res.writeHead(200, { "Content-Type": "text/javascript; charset=utf-8" });
     fs.createReadStream(path.join(__dirname, url.pathname.slice(1))).pipe(res);
+  } else if (req.method === "GET" && /^\/assets\/fonts\/neodgm\.(woff2|woff|ttf)$/.test(url.pathname)) {
+    const types = { ".woff2": "font/woff2", ".woff": "font/woff", ".ttf": "font/ttf" };
+    const font = path.join(__dirname, "assets", "fonts", path.basename(url.pathname));
+    fs.readFile(font, (error, data) => {
+      if (error) { res.writeHead(404); res.end(); return; }
+      res.writeHead(200, { "Content-Type": types[path.extname(font)] });
+      res.end(data);
+    });
   } else if (req.method === "GET" && url.pathname === "/events") {
     res.writeHead(200, {
       "Content-Type": "text/event-stream",
