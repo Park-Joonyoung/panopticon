@@ -1,0 +1,5 @@
+.venv
+.preview-browser
+.preview-browser-image
+data
+*.test.js
